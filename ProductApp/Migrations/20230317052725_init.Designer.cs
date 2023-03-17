@@ -11,7 +11,7 @@ using ProductApp.Data;
 namespace ProductApp.Migrations
 {
     [DbContext(typeof(ProductAppContext))]
-    [Migration("20230316114918_init")]
+    [Migration("20230317052725_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -22,6 +22,28 @@ namespace ProductApp.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("ProductApp.Models.CCartInfo", b =>
+                {
+                    b.Property<int>("productId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("productId"), 1L, 1);
+
+                    b.Property<string>("productName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("productPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("productQty")
+                        .HasColumnType("int");
+
+                    b.HasKey("productId");
+
+                    b.ToTable("CCartInfo");
+                });
 
             modelBuilder.Entity("ProductApp.Models.CProductInfo", b =>
                 {

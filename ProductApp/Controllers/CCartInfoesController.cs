@@ -22,13 +22,22 @@ namespace ProductApp.Controllers
         // GET: CCartInfoes
         public async Task<IActionResult> Index()
         {
-              return _context.CCartInfo != null ? 
-                          View(await _context.CCartInfo.ToListAsync()) :
-                          Problem("Entity set 'ProductAppContext.CCartInfo'  is null.");
+            try
+            {
+                var cartData = TempData["Cart"];
+                return _context.CCartInfo != null ? View(await _context.CCartInfo.ToListAsync()) : View(cartData);
+                 
+                
+            }
+            catch (Exception ex)
+            {
+                return NoContent();
+            }
+              
         }
 
         // GET: CCartInfoes/Details/5
-        public async Task<IActionResult> Details(string id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.CCartInfo == null)
             {
@@ -46,8 +55,10 @@ namespace ProductApp.Controllers
         }
 
         // GET: CCartInfoes/Create
-        public IActionResult Create()
+        public IActionResult Create(int id)
         {
+            var prodData = _context.CProductInfo.FirstOrDefaultAsync(m => m.productId == id);
+            ViewBag.CProduct = prodData;
             return View();
         }
 
@@ -68,7 +79,7 @@ namespace ProductApp.Controllers
         }
 
         // GET: CCartInfoes/Edit/5
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.CCartInfo == null)
             {
@@ -88,7 +99,7 @@ namespace ProductApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("productId,productName,productQty,productPrice")] CCartInfo cCartInfo)
+        public async Task<IActionResult> Edit(int id, [Bind("productId,productName,productQty,productPrice")] CCartInfo cCartInfo)
         {
             if (id != cCartInfo.productId)
             {
@@ -119,7 +130,7 @@ namespace ProductApp.Controllers
         }
 
         // GET: CCartInfoes/Delete/5
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.CCartInfo == null)
             {
@@ -139,7 +150,7 @@ namespace ProductApp.Controllers
         // POST: CCartInfoes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.CCartInfo == null)
             {
@@ -155,7 +166,8 @@ namespace ProductApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CCartInfoExists(string id)
+        
+        private bool CCartInfoExists(int id)
         {
           return (_context.CCartInfo?.Any(e => e.productId == id)).GetValueOrDefault();
         }

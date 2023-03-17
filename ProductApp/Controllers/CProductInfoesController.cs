@@ -155,6 +155,25 @@ namespace ProductApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> AddToCart(int id)
+        {
+            List<CCartInfo> Cart = new();
+            CCartInfo newCart = new();
+            var cProductInfo = await _context.CProductInfo
+               .FirstOrDefaultAsync(m => m.productId == id);
+            if (cProductInfo == null) { return NotFound(); }
+            TempData["cartid"] = id;
+            newCart.productId = id;
+            newCart.productName = cProductInfo.productName;
+            newCart.productPrice = cProductInfo.productPrice;
+            newCart.productQty = 1;
+            newCart.productPrice = cProductInfo.productPrice;
+            Cart.Add(newCart);
+            TempData["Cart"] = Cart;
+            return RedirectToAction("Index","CCartInfoes");
+        }
+
+
         private bool CProductInfoExists(int id)
         {
           return (_context.CProductInfo?.Any(e => e.productId == id)).GetValueOrDefault();

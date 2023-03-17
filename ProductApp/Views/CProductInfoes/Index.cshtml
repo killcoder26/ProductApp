@@ -36,7 +36,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.productImage)
             </th>
-            <th></th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -64,12 +64,14 @@
                 @Html.DisplayFor(modelItem => item.productPrice)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.productImage)
+                <img src="@Html.DisplayNameFor(model => model.productImage)" alt="IMG" width="320" height="380" />
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.productId">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.productId">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.productId">Delete</a>
+                <a asp-action="Create" asp-controller="CCartInfoes" asp-route-id="@item.productId">Add 🛒</a>
+                
             </td>
         </tr>
 }

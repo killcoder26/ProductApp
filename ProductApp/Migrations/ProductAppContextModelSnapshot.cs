@@ -23,8 +23,11 @@ namespace ProductApp.Migrations
 
             modelBuilder.Entity("ProductApp.Models.CCartInfo", b =>
                 {
-                    b.Property<string>("productId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("productId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("productId"), 1L, 1);
 
                     b.Property<string>("productName")
                         .HasColumnType("nvarchar(max)");
