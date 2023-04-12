@@ -1,175 +1,133 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using ProductApp.Data;
 using ProductApp.Models;
+using System.Text;
 
 namespace ProductApp.Controllers
 {
     public class CCartInfoesController : Controller
     {
-        private readonly ProductAppContext _context;
+        //IConfiguration _configuration;
+        //string apibaseurl;
+        //private readonly ProductAppContext _context;
 
-        public CCartInfoesController(ProductAppContext context)
-        {
-            _context = context;
-        }
+        //public CCartInfoesController(ProductAppContext context, IConfiguration configuration)
+        //{
+        //    _context = context;
+        //    _configuration = configuration;
+        //    apibaseurl = _configuration.GetValue<string>("WebAPIbaseURL");
+        //}
 
         // GET: CCartInfoes
         public async Task<IActionResult> Index()
         {
-            try
-            {
-                var cartData = TempData["Cart"];
-                return _context.CCartInfo != null ? View(await _context.CCartInfo.ToListAsync()) : View(cartData);
-                 
-                
-            }
-            catch (Exception ex)
-            {
-                return NoContent();
-            }
-              
+            return View(CRepository.CartLists);  
         }
+        //public List<CCartInfo> getCartItems()
+        //{
+        //    List<CCartInfo> cCartInfos = new();
+        //    HttpClient client = new();
+        //    HttpResponseMessage response =client.GetAsync(apibaseurl + string.Format("/CCartInfoes")).Result;
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        cCartInfos = JsonConvert.DeserializeObject<List<CCartInfo>>(response.Content.ReadAsStringAsync().Result);
+        //    }
+        //    return cCartInfos;
 
+        //}
         // GET: CCartInfoes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.CCartInfo == null)
-            {
-                return NotFound();
-            }
 
-            var cCartInfo = await _context.CCartInfo
-                .FirstOrDefaultAsync(m => m.productId == id);
-            if (cCartInfo == null)
-            {
-                return NotFound();
-            }
-
-            return View(cCartInfo);
+            return View(CRepository.CartLists.FirstOrDefault(item=>item.productId==id));
         }
 
         // GET: CCartInfoes/Create
-        public IActionResult Create(int id)
+        public IActionResult Create()
         {
-            var prodData = _context.CProductInfo.FirstOrDefaultAsync(m => m.productId == id);
-            ViewBag.CProduct = prodData;
             return View();
         }
 
         // POST: CCartInfoes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("productId,productName,productQty,productPrice")] CCartInfo cCartInfo)
+        public ActionResult Create(IFormCollection collection)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(cCartInfo);
-                await _context.SaveChangesAsync();
+                CCartInfo cart = new CCartInfo();
+                CRepository.CreateCInterface(cart);
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(cCartInfo);
+            catch (Exception ex)
+            {
+                return View();
+            }
+            
         }
 
         // GET: CCartInfoes/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public IActionResult Edit(int? id)
         {
-            if (id == null || _context.CCartInfo == null)
-            {
-                return NotFound();
-            }
-
-            var cCartInfo = await _context.CCartInfo.FindAsync(id);
-            if (cCartInfo == null)
-            {
-                return NotFound();
-            }
-            return View(cCartInfo);
+           CCartInfo? cart=CRepository.CartLists.Where(item=>item.productId==id).FirstOrDefault();
+            return View(cart);
         }
 
         // POST: CCartInfoes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("productId,productName,productQty,productPrice")] CCartInfo cCartInfo)
+        public IActionResult Edit(int id,IFormCollection collection
+            )
         {
-            if (id != cCartInfo.productId)
+            try
             {
-                return NotFound();
-            }
+                if(ModelState.IsValid)
+                {
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(cCartInfo);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CCartInfoExists(cCartInfo.productId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(cCartInfo);
+            catch (Exception ex)
+            {
+                return View();
+            }
         }
 
         // GET: CCartInfoes/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public ActionResult Delete(int? id)
         {
-            if (id == null || _context.CCartInfo == null)
-            {
-                return NotFound();
-            }
-
-            var cCartInfo = await _context.CCartInfo
-                .FirstOrDefaultAsync(m => m.productId == id);
-            if (cCartInfo == null)
-            {
-                return NotFound();
-            }
-
-            return View(cCartInfo);
+            return View(CRepository.CartLists.FirstOrDefault(item => item.productId == id));
         }
 
         // POST: CCartInfoes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id,IFormCollection collection)
         {
-            if (_context.CCartInfo == null)
+            try
+                {
+                    CRepository.RemoveFromCart(CRepository.CartLists.FirstOrDefault(item => item.productId == id));
+                    return RedirectToAction(nameof(Index));
+                }
+            catch (Exception ex)
             {
-                return Problem("Entity set 'ProductAppContext.CCartInfo'  is null.");
+                return View();
             }
-            var cCartInfo = await _context.CCartInfo.FindAsync(id);
-            if (cCartInfo != null)
+        }
+        public async Task<IActionResult> Invoice()
+        {
+
+            decimal totalprice = 0;
+            foreach (var item in CRepository.CartLists)
             {
-                _context.CCartInfo.Remove(cCartInfo);
+                totalprice = (decimal)(totalprice + item.productPrice);
             }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return View(totalprice);
         }
 
-        
-        private bool CCartInfoExists(int id)
-        {
-          return (_context.CCartInfo?.Any(e => e.productId == id)).GetValueOrDefault();
-        }
+
     }
 }

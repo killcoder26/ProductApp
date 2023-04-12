@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using ProductApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);

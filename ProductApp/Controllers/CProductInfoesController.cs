@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -155,23 +156,37 @@ namespace ProductApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> AddToCart(int id)
+        public async Task<IActionResult> AddCart(int? id)
         {
-            List<CCartInfo> Cart = new();
-            CCartInfo newCart = new();
-            var cProductInfo = await _context.CProductInfo
-               .FirstOrDefaultAsync(m => m.productId == id);
-            if (cProductInfo == null) { return NotFound(); }
-            TempData["cartid"] = id;
-            newCart.productId = id;
-            newCart.productName = cProductInfo.productName;
-            newCart.productPrice = cProductInfo.productPrice;
-            newCart.productQty = 1;
-            newCart.productPrice = cProductInfo.productPrice;
-            Cart.Add(newCart);
-            TempData["Cart"] = Cart;
-            return RedirectToAction("Index","CCartInfoes");
+            if(id==null || _context.CProductInfo == null)
+            {
+                return NotFound();
+            }
+            var CProductInfo = await _context.CProductInfo.FindAsync(id);
+            if (CProductInfo != null)
+            {
+                return NotFound();
+            }
+            return View(CProductInfo);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken] 
+        public ActionResult AddCart(int id, [Bind("productId,productName,productPrice")] CCartInfo cCartInfo)
+        {
+            CCartInfo cart=new CCartInfo();
+            if(cCartInfo!=null) {
+                cart.productId = id;
+                cart.productName=cCartInfo.productName;
+                cart.productPrice=cCartInfo.productPrice;
+                cart.productQty = 1;  
+            }
+            Debug.Write("AddtoCart"+cart.productPrice);
+            CRepository.CreateCInterface(cart);
+            return RedirectToAction(nameof(Index));
+        }
+
+       
 
 
         private bool CProductInfoExists(int id)

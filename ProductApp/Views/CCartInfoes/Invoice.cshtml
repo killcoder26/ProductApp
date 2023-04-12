@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<ProductApp.Models.CCartInfo>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Invoice";
 }
 
-<h1>Product Cart</h1>
+<h1>Invoice</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -37,11 +37,10 @@
                 @Html.DisplayFor(modelItem => item.productPrice)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.productId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.productId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.productId">Delete</a>
+                <a asp-action="Index">Back to Cart</a>
             </td>
         </tr>
 }
+<h3>Total Price:</h3>
     </tbody>
 </table>
